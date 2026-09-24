@@ -752,6 +752,7 @@ async function showMovieDetails(content, autoPlay = false) {
           <button class="secondary-button" id="modalContinueButton">${progressData ? 'Resume' : 'Start Watching'}</button>
           <button class="secondary-button" id="modalWatchNowButton">Watch Now</button>
           ${trailer ? `<button class="secondary-button" id="modalTrailerButton">Watch Trailer</button>` : ''}
+          <button class="secondary-button" id="modalShareButton">Share</button>
         </div>
         ${renderPlayerSettings()}
         ${isTv ? renderEpisodeSelectors(details) : ''}
@@ -813,6 +814,8 @@ async function showMovieDetails(content, autoPlay = false) {
     const episode = episodeValue ? Number(episodeValue.value) : undefined;
     loadVidsrcPlayer(type, id, season, episode);
   });
+
+  document.getElementById('modalShareButton').addEventListener('click', () => shareContent(title, id, type));
 
   const languageSelect = document.getElementById('languageSelect');
   const audioSelect = document.getElementById('audioSelect');
@@ -888,6 +891,27 @@ async function showMovieDetails(content, autoPlay = false) {
   if (currentUser === null) {
     document.getElementById('commentForm').querySelector('button').disabled = true;
     document.getElementById('commentForm').querySelector('textarea').placeholder = 'Sign in to post comments';
+  }
+}
+
+async function shareContent(title, id, type) {
+  const shareUrl = `${window.location.origin}${window.location.pathname}?title=${encodeURIComponent(id)}&type=${type}`;
+  const shareData = {
+    title: `${title} | TN STREAMING`,
+    text: `Check out ${title} on TN STREAMING.`,
+    url: shareUrl
+  };
+
+  try {
+    if (navigator.share) {
+      await navigator.share(shareData);
+      showNotification('Shared', `${title} is ready to share.`);
+      return;
+    }
+    await navigator.clipboard.writeText(shareUrl);
+    showNotification('Link copied', `${title} link copied to your clipboard.`);
+  } catch (error) {
+    if (error.name !== 'AbortError') showNotification('Share unavailable', 'Unable to share this title right now.');
   }
 }
 
