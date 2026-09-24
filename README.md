@@ -20,6 +20,12 @@ python -m http.server 4173
 
 Open <http://localhost:4173/>.
 
+## Deploy on GitHub Pages
+
+Pushes to `main` are published automatically through GitHub Actions. In the repository settings, set **Pages** to use **GitHub Actions** as the source once, then open:
+
+<https://tamizh1309.github.io/TNSTREAMING/>
+
 ## Configuration
 
 The TMDB key is currently configured in `script.js` for this static demo. Restrict that key to the intended domains in TMDB before publishing publicly.
