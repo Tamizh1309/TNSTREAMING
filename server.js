@@ -67,7 +67,7 @@ async function proxyTmdb(request, response, pathname, search) {
 function serveStatic(response, pathname) {
   const requestedPath = pathname === '/' ? '/index.html' : pathname;
   const filePath = resolve(normalize(join(rootDir, requestedPath)));
-  const insideRoot = filePath === rootDir || filePath.startsWith(`${rootDir}\`) || filePath.startsWith(`${rootDir}/`);
+  const insideRoot = filePath === rootDir || filePath.startsWith(rootDir + '\\') || filePath.startsWith(`${rootDir}/`);
   if (!insideRoot || !existsSync(filePath) || !statSync(filePath).isFile()) {
     sendJson(response, 404, { success: false, message: 'Resource not found.' });
     return;
