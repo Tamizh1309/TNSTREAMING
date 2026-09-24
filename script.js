@@ -1,4 +1,5 @@
 ﻿const IMG_PATH = "https://image.tmdb.org/t/p/w500";
+const PLACEHOLDER_IMAGE = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 480 720%22%3E%3Crect width=%22480%22 height=%22720%22 fill=%22%2311131b%22/%3E%3C/svg%3E';
 const IS_GITHUB_PAGES = window.location.hostname.endsWith('github.io');
 const API_BASE = window.TNSTREAMING_API_BASE || (IS_GITHUB_PAGES ? '' : "/api/tmdb");
 const STORAGE_KEYS = {
@@ -300,7 +301,7 @@ function showNotification(title, message) {
 
 function createMovieCard(content, containerClass = 'movie-card') {
   const title = content.title || content.name || 'Untitled';
-  const poster = content.poster_path ? `${IMG_PATH}${content.poster_path}` : 'https://via.placeholder.com/480x720?text=No+Image';
+  const poster = content.poster_path ? `${IMG_PATH}${content.poster_path}` : PLACEHOLDER_IMAGE;
   const rating = content.vote_average ? content.vote_average.toFixed(1) : 'N/A';
   const progressData = continueWatching[content.id] || null;
   const progressSection = progressData ? `<div class="progress-bar"><span style="width: ${progressData.progress}%"></span></div>` : '';
@@ -393,7 +394,7 @@ function setFeaturedItem(item) {
   elements.featuredOverview.textContent = item.overview || 'Discover new releases and trending recommendations.';
   elements.featuredWatchlistButton.textContent = isWatchlisted(item.id, getContentType(item)) ? 'Remove from Watchlist' : '+ My List';
   elements.featured.dataset.featuredId = item.id;
-  elements.featured.style.backgroundImage = `linear-gradient(180deg, rgba(11, 11, 15, 0.15), rgba(11, 11, 15, 0.9)), url(${item.backdrop_path ? IMG_PATH + item.backdrop_path : 'https://via.placeholder.com/1200x700?text=Featured'})`;
+  elements.featured.style.backgroundImage = `linear-gradient(180deg, rgba(11, 11, 15, 0.15), rgba(11, 11, 15, 0.9)), url(${item.backdrop_path ? IMG_PATH + item.backdrop_path : PLACEHOLDER_IMAGE})`;
 
   const ratingText = item.vote_average ? `${item.vote_average.toFixed(1)} ★` : 'NR';
   const yearText = (item.release_date || item.first_air_date || 'Unknown').slice(0, 4);
@@ -463,7 +464,7 @@ function renderMoodGrid() {
 
   container.innerHTML = picks.map(item => `
     <div class="mood-card" data-id="${item.id}">
-      <img src="${item.poster_path ? IMG_PATH + item.poster_path : 'https://via.placeholder.com/480x720?text=No+Image'}" alt="${item.title || item.name}" />
+      <img src="${item.poster_path ? IMG_PATH + item.poster_path : PLACEHOLDER_IMAGE}" alt="${item.title || item.name}" />
       <div class="mood-card-body">
         <h3>${item.title || item.name}</h3>
         <p>${(item.release_date || item.first_air_date || '2026').slice(0, 4)} • ${(item.vote_average || 0).toFixed(1)} ★</p>
@@ -485,7 +486,7 @@ function updateMoreLikeThis() {
   const suggestions = popularResults.filter(item => item.id !== featuredItem.id).slice(0, 8);
   container.innerHTML = suggestions.map(item => `
     <div class="movie-card more-like-card" data-id="${item.id}">
-      <img src="${item.poster_path ? IMG_PATH + item.poster_path : 'https://via.placeholder.com/480x720?text=No+Image'}" alt="${item.title || item.name}" />
+      <img src="${item.poster_path ? IMG_PATH + item.poster_path : PLACEHOLDER_IMAGE}" alt="${item.title || item.name}" />
       <div class="card-body">
         <h3>${item.title || item.name}</h3>
         <span class="card-type">${item.release_date ? item.release_date.slice(0, 4) : ''}</span>
@@ -505,7 +506,7 @@ function createFeaturedCarouselCard(item) {
   card.className = 'carousel-card';
   if (featuredItem && featuredItem.id === item.id) card.classList.add('active');
   card.innerHTML = `
-    <img src="${item.backdrop_path ? IMG_PATH + item.backdrop_path : item.poster_path ? IMG_PATH + item.poster_path : 'https://via.placeholder.com/480x360?text=Featured'}" alt="${item.title || item.name}" />
+    <img src="${item.backdrop_path ? IMG_PATH + item.backdrop_path : item.poster_path ? IMG_PATH + item.poster_path : PLACEHOLDER_IMAGE}" alt="${item.title || item.name}" />
     <div class="carousel-card-body">
       <h3>${item.title || item.name}</h3>
       <span>${item.release_date ? item.release_date.slice(0, 4) : item.first_air_date ? item.first_air_date.slice(0, 4) : 'TV Series'}</span>
@@ -700,7 +701,7 @@ async function showMovieDetails(content, autoPlay = false) {
   const isTv = type === 'tv';
   const castList = (creditsData.cast || []).slice(0, 8);
 
-  const poster = details.poster_path ? `${IMG_PATH}${details.poster_path}` : 'https://via.placeholder.com/480x720?text=No+Image';
+  const poster = details.poster_path ? `${IMG_PATH}${details.poster_path}` : PLACEHOLDER_IMAGE;
   const title = details.title || details.name || 'Untitled';
   const releaseDate = details.release_date || details.first_air_date || 'Unknown';
   const genres = details.genres ? details.genres.map(genre => genre.name).join(', ') : 'N/A';
@@ -764,7 +765,7 @@ async function showMovieDetails(content, autoPlay = false) {
       <div class="recommendation-grid">
         ${recommendationsData.results.slice(0, 6).map(item => `
           <div class="recommendation-item" data-id="${item.id}">
-            <img src="${item.poster_path ? IMG_PATH + item.poster_path : 'https://via.placeholder.com/300x450?text=No+Image'}" alt="${item.title || item.name}" />
+            <img src="${item.poster_path ? IMG_PATH + item.poster_path : PLACEHOLDER_IMAGE}" alt="${item.title || item.name}" />
             <p>${item.title || item.name}</p>
           </div>
         `).join('')}
