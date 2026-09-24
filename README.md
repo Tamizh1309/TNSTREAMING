@@ -26,6 +26,14 @@ Pushes to `main` are published automatically through GitHub Actions. In the repo
 
 <https://tamizh1309.github.io/TNSTREAMING/>
 
+## Deploy on Render
+
+Create a new **Static Site** in Render and connect `Tamizh1309/TNSTREAMING`. Render can read `render.yaml` automatically, or use these settings:
+
+- Build command: `echo "TNSTREAMING static site ready"`
+- Publish directory: `.`
+- Auto-deploy: enabled
+
 ## Configuration
 
 The TMDB key is currently configured in `script.js` for this static demo. Restrict that key to the intended domains in TMDB before publishing publicly.
