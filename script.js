@@ -32,6 +32,7 @@ let currentUser = JSON.parse(localStorage.getItem(STORAGE_KEYS.currentUser)) || 
 let cachedMovies = JSON.parse(localStorage.getItem(STORAGE_KEYS.cachedMovies)) || {};
 let featuredItem = null;
 let popularResults = [];
+let deferredInstallPrompt = null;
 let featuredCarouselIndex = 0;
 let featuredCarouselInterval = null;
 let selectedGenre = '';
@@ -88,6 +89,7 @@ function getElements() {
     search: document.getElementById('search'),
     suggestions: document.getElementById('suggestions'),
     authBtn: document.getElementById('authBtn'),
+    installButton: document.getElementById('installButton'),
     cinemaToggle: document.getElementById('cinemaToggle'),
     authModal: document.getElementById('authModal'),
     closeAuthModal: document.getElementById('closeAuthModal'),
@@ -1156,6 +1158,15 @@ function toggleCinemaMode() {
   showNotification(active ? 'Cinema Mode' : 'Browse Mode', active ? 'Focused viewing layout enabled.' : 'Full catalog restored.');
 }
 
+async function installApp() {
+  if (!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  const choice = await deferredInstallPrompt.userChoice;
+  if (choice.outcome === 'accepted') showNotification('App installed', 'TN STREAMING is ready from your home screen.');
+  deferredInstallPrompt = null;
+  elements.installButton.hidden = true;
+}
+
 function checkOfflineStatus() {
   elements.offlineNotice.style.display = navigator.onLine ? 'none' : 'block';
 }
@@ -1238,6 +1249,7 @@ function initialize() {
   elements.search.addEventListener('blur', () => setTimeout(() => { elements.suggestions.style.display = 'none'; }, 180));
 
   elements.themeToggle.addEventListener('click', toggleTheme);
+  elements.installButton.addEventListener('click', installApp);
   elements.cinemaToggle.addEventListener('click', toggleCinemaMode);
   elements.watchlistBtn.addEventListener('click', () => {
     const visible = elements.watchlistSection.style.display !== 'none';
@@ -1301,6 +1313,16 @@ function initialize() {
 
   window.addEventListener('online', checkOfflineStatus);
   window.addEventListener('offline', checkOfflineStatus);
+  window.addEventListener('beforeinstallprompt', event => {
+    event.preventDefault();
+    deferredInstallPrompt = event;
+    elements.installButton.hidden = false;
+  });
+  window.addEventListener('appinstalled', () => {
+    deferredInstallPrompt = null;
+    elements.installButton.hidden = true;
+    showNotification('App ready', 'TN STREAMING is installed on this device.');
+  });
   openSharedTitle();
 }
 
