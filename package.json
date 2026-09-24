@@ -6,8 +6,18 @@
   "type": "module",
   "scripts": {
     "start": "node --env-file-if-exists=.env server.js",
-    "dev": "node --env-file-if-exists=.env --watch server.js",
+    "backend": "node --env-file-if-exists=.env server.js",
+    "dev": "concurrently \"npm run backend\" \"vite --host 0.0.0.0 --port 4174\"",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0",
     "test": "node --test"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "latest",
+    "concurrently": "latest",
+    "vite": "latest",
+    "react": "latest",
+    "react-dom": "latest"
   },
   "engines": {
     "node": ">=20"

@@ -3,135 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#0b0b0f" />
-    <title>TN Streaming App</title>
-    <link rel="stylesheet" href="style.css" />
+    <meta name="theme-color" content="#07080d" />
+    <title>TN STREAMING</title>
     <link rel="manifest" href="manifest.json" />
     <link rel="apple-touch-icon" href="apple-touch-icon.svg" />
     <link rel="icon" href="icon.svg" type="image/svg+xml" />
   </head>
   <body>
-    <header class="app-header">
-      <div class="brand">
-        <div class="logo">TN STREAMING</div>
-        <div class="tagline">Movies, shows and recommendations made for you</div>
-      </div>
-      <div class="header-controls">
-        <form id="form" class="search-container">
-          <input id="search" class="search" type="search" placeholder="Search titles, actors, genres..." autocomplete="off" />
-          <div class="search-suggestions" id="suggestions"></div>
-        </form>
-        <button class="secondary-button install-button" id="installButton" type="button" hidden>Install app</button>
-        <button class="icon-button" id="settingsBtn" title="Open settings" aria-label="Open settings">⚙</button>
-        <button class="icon-button" id="cinemaToggle" title="Toggle Cinema Mode" aria-label="Toggle Cinema Mode">◉</button>
-        <button class="icon-button" id="themeToggle" title="Toggle theme">☀️</button>
-        <button class="icon-button" id="watchlistBtn" title="Toggle watchlist">★</button>
-        <button class="icon-button" id="profileBtn" title="Select profile">👤</button>
-        <button class="secondary-button" id="authBtn">Sign In</button>
-      </div>
-    </header>
-
-    <nav class="main-nav" id="mainNav">
-      <button class="nav-pill active" data-target="featured">Home</button>
-      <button class="nav-pill" data-target="popular">Movies</button>
-      <button class="nav-pill" data-target="popularTv">TV Shows</button>
-      <button class="nav-pill" data-target="continueWatchingSection">Continue</button>
-      <button class="nav-pill" data-target="watchlistSection">My List</button>
-      <button class="nav-pill" data-target="liveSection">Live</button>
-      <button class="nav-pill" data-target="sportsSection">Sports</button>
-      <button class="nav-pill" data-target="kidsSection">Kids</button>
-    </nav>
-
-    <section class="filters-bar">
-      <div class="filter-item">
-        <label for="languageFilter">Language</label>
-        <select id="languageFilter">
-          <option value="">Any</option>
-          <option value="en">English</option>
-          <option value="es">Spanish</option>
-          <option value="fr">French</option>
-          <option value="de">German</option>
-          <option value="hi">Hindi</option>
-          <option value="ta">Tamil</option>
-        </select>
-      </div>
-      <div class="filter-item">
-        <label for="ratingFilter">Minimum Rating</label>
-        <select id="ratingFilter">
-          <option value="">Any</option>
-          <option value="6">6+</option>
-          <option value="7">7+</option>
-          <option value="8">8+</option>
-        </select>
-      </div>
-    </section>
-
-    <div class="genre-pill-row" id="genrePills"></div>
-
-    <section class="mood-section" id="moodSection">
-      <div class="section-header">
-        <div>
-          <h2>Match Your Mood</h2>
-          <p>Quick picks for your next binge.</p>
-        </div>
-      </div>
-      <div class="mood-pills" id="moodPills"></div>
-      <div class="mood-grid" id="moodGrid"></div>
-    </section>
-
-    <section class="feature-strip" id="liveSection">
-      <div class="section-header">
-        <div>
-          <h2>Live Now</h2>
-          <p>Movies, cricket, premieres, and entertainment all in one place.</p>
-        </div>
-      </div>
-      <div class="live-grid">
-        <article class="live-card live-card--hot">
-          <span class="live-tag">Live</span>
-          <h3>Cricket World Cup</h3>
-          <p>India vs Australia • 7:30 PM</p>
-        </article>
-        <article class="live-card live-card--prime">
-          <span class="live-tag">Premier</span>
-          <h3>Amazon Prime Premiere</h3>
-          <p>New blockbuster launch tonight</p>
-        </article>
-        <article class="live-card live-card--netflix">
-          <span class="live-tag">Original</span>
-          <h3>Netflix Original</h3>
-          <p>New gripping thrillers and drama</p>
-        </article>
-        <article class="live-card live-card--hotstar">
-          <span class="live-tag">Special</span>
-          <h3>Disney+ Hotstar</h3>
-          <p>Sports, serials and live events</p>
-        </article>
-      </div>
-    </section>
-
-    <section class="feature-strip" id="sportsSection">
-      <div class="section-header">
-        <div>
-          <h2>Sports & Entertainment</h2>
-          <p>From streaming exclusives to blockbuster sports action.</p>
-        </div>
-      </div>
-      <div class="promo-grid">
-        <div class="promo-card promo-card--red">
-          <span>Originals</span>
-          <strong>Netflix-style exclusives</strong>
-        </div>
-        <div class="promo-card promo-card--blue">
-          <span>Prime</span>
-          <strong>Worldwide premieres</strong>
-        </div>
-        <div class="promo-card promo-card--gold">
-          <span>Hotstar</span>
-          <strong>Sports, news, and serials</strong>
-        </div>
-      </div>
-    </section>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
 
     <section class="feature-strip" id="kidsSection">
       <div class="section-header">

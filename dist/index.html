@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#07080d" />
+    <title>TN STREAMING</title>
+    <link rel="manifest" href="/assets/manifest-DfmKPOk9.json" />
+    <link rel="apple-touch-icon" href="/assets/apple-touch-icon-C75ouftc.svg" />
+    <link rel="icon" href="/assets/icon-BEq47Bw8.svg" type="image/svg+xml" />
+    <script type="module" crossorigin src="/assets/index-GszxjpSD.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-CfvrY3uA.css">
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <section class="feature-strip" id="kidsSection">
+      <div class="section-header">
+        <div>
+          <h2>Family & Kids</h2>
+          <p>Animated adventures, fun comedy, and child-safe streaming.</p>
+        </div>
+      </div>
+      <div class="kids-row">
+        <div class="kids-pill">Cartoons</div>
+        <div class="kids-pill">Animation</div>
+        <div class="kids-pill">Family Fun</div>
+        <div class="kids-pill">Learning</div>
+      </div>
+    </section>
+
+    <section class="feature-strip access-strip">
+      <div class="section-header">
+        <div>
+          <h2>Everything in one place</h2>
+          <p>Explore the full experience with every feature available from the start.</p>
+        </div>
+      </div>
+      <div class="access-grid">
+        <div class="access-card">
+          <span class="access-icon">◉</span>
+          <strong>Personalized discovery</strong>
+          <ul>
+            <li>Mood-based recommendations</li>
+            <li>Smart filters and search</li>
+          </ul>
+        </div>
+        <div class="access-card access-card--highlight">
+          <span class="access-icon">▶</span>
+          <strong>Watch your way</strong>
+          <ul>
+            <li>Movie and TV details</li>
+            <li>Episode-aware player controls</li>
+          </ul>
+        </div>
+        <div class="access-card">
+          <span class="access-icon">★</span>
+          <strong>Keep your place</strong>
+          <ul>
+            <li>Watchlist and continue watching</li>
+            <li>Profiles, ratings and activity stats</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="featured" id="featured">
+      <div class="featured-overlay">
+        <div class="featured-content">
+          <div class="featured-labels">
+            <span class="featured-badge">Featured</span>
+            <span class="featured-pill">HD</span>
+            <span class="featured-pill">Trending</span>
+          </div>
+          <h1 class="featured-title" id="featuredTitle">Loading top picks...</h1>
+          <p class="featured-overview" id="featuredOverview">Explore movies and TV shows curated for you.</p>
+          <div class="featured-actions">
+            <button class="primary-button" id="featuredDetailsButton">More Info</button>
+            <button class="secondary-button" id="featuredWatchNowButton">Play now</button>
+            <button class="secondary-button" id="featuredShuffleButton">Shuffle</button>
+            <button class="secondary-button" id="featuredWatchlistButton">+ My List</button>
+          </div>
+          <div class="featured-footer">
+            <div class="hero-metadata">
+              <span id="heroRating">8.7 ★</span>
+              <span id="heroRuntime">2h 10m</span>
+              <span id="heroGenre">Action, Adventure</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="carousel-section" id="featuredCarouselSection">
+      <div class="section-header">
+        <div>
+          <h2>Featured Picks</h2>
+          <p>Swipe through the latest spotlight selections.</p>
+        </div>
+      </div>
+      <div class="horizontal-scroll carousel-row" id="featuredCarousel"></div>
+    </section>
+
+    <section class="category-row more-like-this" id="moreLikeThisSection">
+      <div class="section-header">
+        <div>
+          <h2>Recommended for You</h2>
+          <p>Based on your featured pick.</p>
+        </div>
+      </div>
+      <div class="horizontal-scroll" id="moreLikeThis"></div>
+    </section>
+
+    <section class="section continue-watching" id="continueWatchingSection">
+      <div class="section-header">
+        <div>
+          <h2>Continue Watching</h2>
+          <p>Pick up right where you paused.</p>
+        </div>
+      </div>
+      <div class="continue-pill-row">
+        <span class="continue-pill">Resume instantly</span>
+        <span class="continue-pill">Auto next</span>
+        <span class="continue-pill">Personalized picks</span>
+      </div>
+      <div class="horizontal-scroll" id="continueWatchingGrid"></div>
+    </section>
+
+    <section class="section watchlist-section" id="watchlistSection">
+      <div class="section-header">
+        <div>
+          <h2>Watchlist</h2>
+          <p>Saved titles that are ready for later.</p>
+        </div>
+      </div>
+      <div class="horizontal-scroll" id="watchlistGrid"></div>
+    </section>
+
+    <section class="section stats-section" id="statsSection">
+      <div class="section-header">
+        <div>
+          <h2>Your Stats</h2>
+          <p>Monitor your viewing activity and ratings.</p>
+        </div>
+      </div>
+      <div class="stats-grid" id="statsGrid"></div>
+    </section>
+
+    <section class="category-row">
+      <div class="section-header">
+        <div>
+          <h2>Popular Movies</h2>
+          <p>Top trending movies right now.</p>
+        </div>
+        <div class="category-controls">
+          <select class="sort-select" data-target="popular" title="Sort popular movies">
+            <option value="popularity.desc">Popularity</option>
+            <option value="vote_average.desc">Rating</option>
+            <option value="release_date.desc">Release Date</option>
+          </select>
+          <select class="filter-select" data-target="popular" title="Filter popular movies by genre">
+            <option value="">All Genres</option>
+            <option value="28">Action</option>
+            <option value="12">Adventure</option>
+            <option value="16">Animation</option>
+            <option value="35">Comedy</option>
+            <option value="80">Crime</option>
+            <option value="99">Documentary</option>
+            <option value="18">Drama</option>
+            <option value="10751">Family</option>
+            <option value="14">Fantasy</option>
+            <option value="36">History</option>
+            <option value="27">Horror</option>
+            <option value="10402">Music</option>
+            <option value="9648">Mystery</option>
+            <option value="10749">Romance</option>
+            <option value="878">Science Fiction</option>
+            <option value="53">Thriller</option>
+          </select>
+        </div>
+      </div>
+      <div class="horizontal-scroll" id="popular"></div>
+    </section>
+
+    <section class="category-row">
+      <div class="section-header">
+        <div>
+          <h2>Top Rated</h2>
+          <p>Critically acclaimed titles.</p>
+        </div>
+        <div class="category-controls">
+          <select class="sort-select" data-target="topRated" title="Sort top rated titles">
+            <option value="vote_average.desc">Rating</option>
+            <option value="popularity.desc">Popularity</option>
+            <option value="release_date.desc">Release Date</option>
+          </select>
+          <select class="filter-select" data-target="topRated" title="Filter top rated titles by genre">
+            <option value="">All Genres</option>
+            <option value="28">Action</option>
+            <option value="12">Adventure</option>
+            <option value="16">Animation</option>
+            <option value="35">Comedy</option>
+            <option value="80">Crime</option>
+            <option value="99">Documentary</option>
+            <option value="18">Drama</option>
+            <option value="10751">Family</option>
+            <option value="14">Fantasy</option>
+            <option value="36">History</option>
+            <option value="27">Horror</option>
+            <option value="10402">Music</option>
+            <option value="9648">Mystery</option>
+            <option value="10749">Romance</option>
+            <option value="878">Science Fiction</option>
+            <option value="53">Thriller</option>
+          </select>
+        </div>
+      </div>
+      <div class="horizontal-scroll" id="topRated"></div>
+    </section>
+
+    <section class="category-row">
+      <div class="section-header">
+        <div>
+          <h2>Trending Now</h2>
+          <p>What everyone is watching today.</p>
+        </div>
+        <div class="category-controls">
+          <select class="sort-select" data-target="trending" title="Sort trending titles">
+            <option value="popularity.desc">Popularity</option>
+            <option value="vote_average.desc">Rating</option>
+            <option value="release_date.desc">Release Date</option>
+          </select>
+          <select class="filter-select" data-target="trending" title="Filter trending titles by genre">
+            <option value="">All Genres</option>
+            <option value="28">Action</option>
+            <option value="12">Adventure</option>
+            <option value="16">Animation</option>
+            <option value="35">Comedy</option>
+            <option value="80">Crime</option>
+            <option value="99">Documentary</option>
+            <option value="18">Drama</option>
+            <option value="10751">Family</option>
+            <option value="14">Fantasy</option>
+            <option value="36">History</option>
+            <option value="27">Horror</option>
+            <option value="10402">Music</option>
+            <option value="9648">Mystery</option>
+            <option value="10749">Romance</option>
+            <option value="878">Science Fiction</option>
+            <option value="53">Thriller</option>
+          </select>
+        </div>
+      </div>
+      <div class="horizontal-scroll" id="trending"></div>
+    </section>
+
+    <section class="category-row">
+      <div class="section-header">
+        <div>
+          <h2>Popular TV Shows</h2>
+          <p>New seasons and fan favorites.</p>
+        </div>
+        <div class="category-controls">
+          <select class="sort-select" data-target="popularTv" title="Sort popular TV shows">
+            <option value="popularity.desc">Popularity</option>
+            <option value="vote_average.desc">Rating</option>
+            <option value="first_air_date.desc">Release Date</option>
+          </select>
+          <select class="filter-select" data-target="popularTv" title="Filter popular TV shows by genre">
+            <option value="">All Genres</option>
+            <option value="10759">Action & Adventure</option>
+            <option value="16">Animation</option>
+            <option value="35">Comedy</option>
+            <option value="80">Crime</option>
+            <option value="99">Documentary</option>
+            <option value="18">Drama</option>
+            <option value="10751">Family</option>
+            <option value="10762">Kids</option>
+            <option value="9648">Mystery</option>
+            <option value="10763">News</option>
+            <option value="10764">Reality</option>
+            <option value="10765">Sci-Fi & Fantasy</option>
+            <option value="10766">Soap</option>
+            <option value="10767">Talk</option>
+            <option value="10768">War & Politics</option>
+          </select>
+        </div>
+      </div>
+      <div class="horizontal-scroll" id="popularTv"></div>
+    </section>
+
+    <section class="category-row">
+      <div class="section-header">
+        <div>
+          <h2>Latest Releases</h2>
+          <p>Fresh movies added to our catalog.</p>
+        </div>
+        <div class="category-controls">
+          <select class="sort-select" data-target="latestReleases" title="Sort latest releases">
+            <option value="release_date.desc">Newest</option>
+            <option value="popularity.desc">Popularity</option>
+            <option value="vote_average.desc">Rating</option>
+          </select>
+          <select class="filter-select" data-target="latestReleases" title="Filter releases by genre">
+            <option value="">All Genres</option>
+            <option value="28">Action</option>
+            <option value="12">Adventure</option>
+            <option value="16">Animation</option>
+            <option value="35">Comedy</option>
+            <option value="80">Crime</option>
+            <option value="99">Documentary</option>
+            <option value="18">Drama</option>
+            <option value="10751">Family</option>
+            <option value="14">Fantasy</option>
+            <option value="36">History</option>
+            <option value="27">Horror</option>
+            <option value="10402">Music</option>
+            <option value="9648">Mystery</option>
+            <option value="10749">Romance</option>
+            <option value="878">Science Fiction</option>
+            <option value="53">Thriller</option>
+          </select>
+        </div>
+      </div>
+      <div class="horizontal-scroll" id="latestReleases"></div>
+    </section>
+
+    <section class="section recently-viewed">
+      <div class="section-header">
+        <div>
+          <h2>Recently Viewed</h2>
+          <p>Your latest watched or opened titles.</p>
+        </div>
+      </div>
+      <div class="horizontal-scroll" id="recentlyViewed"></div>
+    </section>
+
+    <div class="modal" id="movieModal">
+      <div class="modal-content large-modal">
+        <button class="close-modal" id="closeModal">×</button>
+        <div id="modalContent"></div>
+      </div>
+    </div>
+
+    <div class="modal" id="authModal">
+      <div class="modal-content auth-modal">
+        <button class="close-modal" id="closeAuthModal">×</button>
+        <div class="auth-tabs">
+          <button class="auth-tab active" data-tab="login">Sign In</button>
+          <button class="auth-tab" data-tab="signup">Sign Up</button>
+        </div>
+        <form id="loginForm" class="auth-form">
+          <h2>Sign In</h2>
+          <label>Email</label>
+          <input type="email" id="loginEmail" required placeholder="you@example.com" />
+          <label>Password</label>
+          <input type="password" id="loginPassword" required placeholder="Password" />
+          <button type="submit" class="primary-button">Continue</button>
+        </form>
+        <form id="signupForm" class="auth-form hidden">
+          <h2>Create Account</h2>
+          <label>Name</label>
+          <input type="text" id="signupName" required placeholder="Your name" />
+          <label>Email</label>
+          <input type="email" id="signupEmail" required placeholder="you@example.com" />
+          <label>Password</label>
+          <input type="password" id="signupPassword" required placeholder="Password" minlength="6" />
+          <label>Confirm Password</label>
+          <input type="password" id="signupConfirm" required placeholder="Confirm password" />
+          <button type="submit" class="primary-button">Create account</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="profile-modal" id="profileModal">
+      <div class="profile-panel">
+        <button class="close-modal" id="closeProfileModal" aria-label="Close profile">×</button>
+        <div class="profile-heading">
+          <div>
+            <span class="eyebrow">Your account</span>
+            <h3 id="profileName">Guest profile</h3>
+            <p id="profileEmail">Sign in to sync your streaming activity.</p>
+          </div>
+          <div class="profile-avatar" id="profileAvatarPreview">👤</div>
+        </div>
+        <div class="profile-stats" id="profileStats"></div>
+        <div class="profile-divider"></div>
+        <div class="profile-section-heading">
+          <h4>Choose avatar</h4>
+          <span>Personalize your profile</span>
+        </div>
+        <div class="avatar-grid" id="avatarGrid"></div>
+        <button class="secondary-button profile-signout hidden" id="signOutButton">Sign out</button>
+      </div>
+    </div>
+
+    <div class="modal" id="settingsModal" aria-hidden="true">
+      <div class="modal-content settings-modal">
+        <button class="close-modal" id="closeSettingsModal" aria-label="Close settings">×</button>
+        <div class="settings-header">
+          <span class="eyebrow">Personalize</span>
+          <h2>Settings</h2>
+          <p>Your preferences are saved on this device.</p>
+        </div>
+        <div class="settings-list">
+          <label class="settings-row">
+            <span><strong>Autoplay next episode</strong><small>Continue TV episodes automatically when supported.</small></span>
+            <input type="checkbox" id="settingsAutonext" />
+          </label>
+          <label class="settings-row">
+            <span><strong>Reduce motion</strong><small>Use calmer transitions and animations.</small></span>
+            <input type="checkbox" id="settingsReducedMotion" />
+          </label>
+          <label class="settings-row">
+            <span><strong>Data saver</strong><small>Lazy-load artwork and reduce background effects.</small></span>
+            <input type="checkbox" id="settingsDataSaver" />
+          </label>
+          <label class="settings-row settings-select-row" for="settingsLanguage">
+            <span><strong>Default player language</strong><small>Use this language when an authorized player supports it.</small></span>
+            <select id="settingsLanguage"></select>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="offline-notice" id="offlineNotice">Offline mode enabled — browsing cached content.</div>
+    <div class="notifications-container" id="notificationsContainer"></div>
+
+    <footer class="app-footer">
+      <p>© 2026 TN STREAMING. All rights reserved.</p>
+      <p>Personalized recommendations with smart filters and watchlist management.</p>
+    </footer>
+    <script src="script.js"></script>
+  </body>
+</html>

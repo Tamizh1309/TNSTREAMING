@@ -5,7 +5,7 @@ services:
     buildCommand: npm install
     startCommand: npm start
     envVars:
-      - key: TMDB_API_KEY
+      - key: 3fd2be6f0c70a2a598f084ddfb75487c
         sync: false
       - key: CORS_ORIGIN
         value: '*'
