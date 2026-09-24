@@ -10,7 +10,8 @@ const STORAGE_KEYS = {
   cachedMovies: 'tn_cachedMovies',
   continueWatching: 'tn_continueWatching',
   users: 'tn_users',
-  currentUser: 'tn_currentUser'
+  currentUser: 'tn_currentUser',
+  settings: 'tn_settings'
 };
 
 const pages = {
@@ -29,6 +30,10 @@ let continueWatching = JSON.parse(localStorage.getItem(STORAGE_KEYS.continueWatc
 let users = JSON.parse(localStorage.getItem(STORAGE_KEYS.users)) || [];
 let currentUser = JSON.parse(localStorage.getItem(STORAGE_KEYS.currentUser)) || null;
 let cachedMovies = JSON.parse(localStorage.getItem(STORAGE_KEYS.cachedMovies)) || {};
+const appSettings = JSON.parse(localStorage.getItem(STORAGE_KEYS.settings)) || {
+  reducedMotion: false,
+  dataSaver: false
+};
 let featuredItem = null;
 let popularResults = [];
 let deferredInstallPrompt = null;
@@ -89,6 +94,13 @@ function getElements() {
     suggestions: document.getElementById('suggestions'),
     authBtn: document.getElementById('authBtn'),
     installButton: document.getElementById('installButton'),
+    settingsBtn: document.getElementById('settingsBtn'),
+    settingsModal: document.getElementById('settingsModal'),
+    closeSettingsModal: document.getElementById('closeSettingsModal'),
+    settingsAutonext: document.getElementById('settingsAutonext'),
+    settingsReducedMotion: document.getElementById('settingsReducedMotion'),
+    settingsDataSaver: document.getElementById('settingsDataSaver'),
+    settingsLanguage: document.getElementById('settingsLanguage'),
     cinemaToggle: document.getElementById('cinemaToggle'),
     authModal: document.getElementById('authModal'),
     closeAuthModal: document.getElementById('closeAuthModal'),
@@ -191,6 +203,8 @@ const PLAYER_SETTINGS = {
   subtitleUrl: '',
   autonext: 0
 };
+const savedPlayerSettings = JSON.parse(localStorage.getItem('tn_playerSettings')) || {};
+Object.assign(PLAYER_SETTINGS, savedPlayerSettings);
 
 const urls = {
   popular: params => `${API_BASE}/discover/movie?${params}`,
@@ -298,7 +312,7 @@ function createMovieCard(content, containerClass = 'movie-card') {
   element.dataset.id = content.id;
   element.innerHTML = `
     <div class="card-image-wrap">
-      <img src="${poster}" alt="${title}" />
+      <img src="${poster}" alt="${title}" loading="${appSettings.dataSaver ? 'lazy' : 'eager'}" />
       <div class="card-overlay">
         <button class="overlay-action">▶ Play</button>
       </div>
@@ -1109,6 +1123,31 @@ function toggleTheme() {
   elements.themeToggle.textContent = light ? '🌙' : '☀️';
 }
 
+function persistSettings() {
+  localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify(appSettings));
+  localStorage.setItem('tn_playerSettings', JSON.stringify(PLAYER_SETTINGS));
+}
+
+function syncSettingsControls() {
+  elements.settingsAutonext.checked = Boolean(PLAYER_SETTINGS.autonext);
+  elements.settingsReducedMotion.checked = Boolean(appSettings.reducedMotion);
+  elements.settingsDataSaver.checked = Boolean(appSettings.dataSaver);
+  elements.settingsLanguage.value = PLAYER_SETTINGS.language;
+  document.body.classList.toggle('reduced-motion', appSettings.reducedMotion);
+  document.body.classList.toggle('data-saver', appSettings.dataSaver);
+}
+
+function openSettingsModal() {
+  syncSettingsControls();
+  elements.settingsModal.classList.add('show');
+  elements.settingsModal.setAttribute('aria-hidden', 'false');
+}
+
+function closeSettingsModal() {
+  elements.settingsModal.classList.remove('show');
+  elements.settingsModal.setAttribute('aria-hidden', 'true');
+}
+
 function toggleCinemaMode() {
   const active = document.body.classList.toggle('cinema-mode');
   elements.cinemaToggle.textContent = active ? '×' : '◉';
@@ -1188,6 +1227,8 @@ function initialize() {
   updateContinueWatching();
   updateRecentlyViewed();
   updateAuthDisplay();
+  elements.settingsLanguage.innerHTML = AUDIO_LANGUAGES.map(language => `<option value="${language.code}">${language.label}</option>`).join('');
+  syncSettingsControls();
   registerServiceWorker();
   checkOfflineStatus();
 
@@ -1237,6 +1278,31 @@ function initialize() {
   elements.search.addEventListener('blur', () => setTimeout(() => { elements.suggestions.style.display = 'none'; }, 180));
 
   elements.themeToggle.addEventListener('click', toggleTheme);
+  elements.settingsBtn.addEventListener('click', openSettingsModal);
+  elements.closeSettingsModal.addEventListener('click', closeSettingsModal);
+  elements.settingsModal.addEventListener('click', event => {
+    if (event.target === elements.settingsModal) closeSettingsModal();
+  });
+  elements.settingsAutonext.addEventListener('change', () => {
+    PLAYER_SETTINGS.autonext = elements.settingsAutonext.checked ? 1 : 0;
+    persistSettings();
+  });
+  elements.settingsReducedMotion.addEventListener('change', () => {
+    appSettings.reducedMotion = elements.settingsReducedMotion.checked;
+    persistSettings();
+    syncSettingsControls();
+  });
+  elements.settingsDataSaver.addEventListener('change', () => {
+    appSettings.dataSaver = elements.settingsDataSaver.checked;
+    persistSettings();
+    syncSettingsControls();
+    showNotification('Data saver', appSettings.dataSaver ? 'New artwork will load lazily.' : 'Full artwork loading restored.');
+  });
+  elements.settingsLanguage.addEventListener('change', () => {
+    PLAYER_SETTINGS.language = elements.settingsLanguage.value;
+    persistSettings();
+    showNotification('Player language', 'Your default language was saved.');
+  });
   elements.installButton.addEventListener('click', installApp);
   elements.cinemaToggle.addEventListener('click', toggleCinemaMode);
   elements.watchlistBtn.addEventListener('click', () => {
@@ -1269,6 +1335,7 @@ function initialize() {
       elements.modal.classList.remove('show');
       closeAuthModal();
       elements.profileModal.classList.remove('show');
+      closeSettingsModal();
     }
   });
 

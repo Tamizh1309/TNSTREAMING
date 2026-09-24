@@ -22,6 +22,7 @@
           <div class="search-suggestions" id="suggestions"></div>
         </form>
         <button class="secondary-button install-button" id="installButton" type="button" hidden>Install app</button>
+        <button class="icon-button" id="settingsBtn" title="Open settings" aria-label="Open settings">⚙</button>
         <button class="icon-button" id="cinemaToggle" title="Toggle Cinema Mode" aria-label="Toggle Cinema Mode">◉</button>
         <button class="icon-button" id="themeToggle" title="Toggle theme">☀️</button>
         <button class="icon-button" id="watchlistBtn" title="Toggle watchlist">★</button>
@@ -509,6 +510,35 @@
         </div>
         <div class="avatar-grid" id="avatarGrid"></div>
         <button class="secondary-button profile-signout hidden" id="signOutButton">Sign out</button>
+      </div>
+    </div>
+
+    <div class="modal" id="settingsModal" aria-hidden="true">
+      <div class="modal-content settings-modal">
+        <button class="close-modal" id="closeSettingsModal" aria-label="Close settings">×</button>
+        <div class="settings-header">
+          <span class="eyebrow">Personalize</span>
+          <h2>Settings</h2>
+          <p>Your preferences are saved on this device.</p>
+        </div>
+        <div class="settings-list">
+          <label class="settings-row">
+            <span><strong>Autoplay next episode</strong><small>Continue TV episodes automatically when supported.</small></span>
+            <input type="checkbox" id="settingsAutonext" />
+          </label>
+          <label class="settings-row">
+            <span><strong>Reduce motion</strong><small>Use calmer transitions and animations.</small></span>
+            <input type="checkbox" id="settingsReducedMotion" />
+          </label>
+          <label class="settings-row">
+            <span><strong>Data saver</strong><small>Lazy-load artwork and reduce background effects.</small></span>
+            <input type="checkbox" id="settingsDataSaver" />
+          </label>
+          <label class="settings-row settings-select-row" for="settingsLanguage">
+            <span><strong>Default player language</strong><small>Use this language when an authorized player supports it.</small></span>
+            <select id="settingsLanguage"></select>
+          </label>
+        </div>
       </div>
     </div>
 
