@@ -1151,6 +1151,15 @@ function checkOfflineStatus() {
   elements.offlineNotice.style.display = navigator.onLine ? 'none' : 'block';
 }
 
+async function openSharedTitle() {
+  const params = new URLSearchParams(window.location.search);
+  const sharedId = Number(params.get('title'));
+  const sharedType = params.get('type');
+  if (!Number.isInteger(sharedId) || sharedId <= 0 || !['movie', 'tv'].includes(sharedType)) return;
+
+  await showMovieDetails({ id: sharedId, media_type: sharedType });
+}
+
 function registerServiceWorker() {
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js?v=3').catch(error => console.warn('SW registration failed', error));
@@ -1278,6 +1287,7 @@ function initialize() {
 
   window.addEventListener('online', checkOfflineStatus);
   window.addEventListener('offline', checkOfflineStatus);
+  openSharedTitle();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
