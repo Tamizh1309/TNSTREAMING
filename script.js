@@ -1,5 +1,6 @@
 ﻿const IMG_PATH = "https://image.tmdb.org/t/p/w500";
-const API_BASE = window.TNSTREAMING_API_BASE || "/api/tmdb";
+const IS_GITHUB_PAGES = window.location.hostname.endsWith('github.io');
+const API_BASE = window.TNSTREAMING_API_BASE || (IS_GITHUB_PAGES ? '' : "/api/tmdb");
 const STORAGE_KEYS = {
   watchlist: 'tn_watchlist',
   ratings: 'tn_ratings',
@@ -334,6 +335,7 @@ function createMovieCard(content, containerClass = 'movie-card') {
 }
 
 async function fetchJson(url) {
+  if (!API_BASE) throw new Error('Backend unavailable on static hosting.');
   const cacheKey = `cache_${url}`;
   if (!navigator.onLine && cachedMovies[cacheKey]) {
     return cachedMovies[cacheKey];
@@ -1193,6 +1195,10 @@ function renderCatalogUnavailable(message) {
 }
 
 async function loadCatalog() {
+  if (!API_BASE) {
+    renderCatalogUnavailable('This hosted preview needs the Render backend for live catalog data.');
+    return;
+  }
   if (!API_BASE.startsWith('/api/')) {
     await Promise.all(catalogCategories.map(category => updateCategory(category)));
     return;
