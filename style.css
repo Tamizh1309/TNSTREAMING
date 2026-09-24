@@ -215,6 +215,38 @@ textarea {
   margin: 0 auto;
 }
 
+body.cinema-mode {
+  background: #000;
+}
+
+body.cinema-mode > section:not(#featured):not(#featuredCarouselSection) {
+  display: none;
+}
+
+body.cinema-mode .featured {
+  min-height: calc(100vh - 8rem);
+  margin: 1rem 1rem 0;
+  border-radius: 24px;
+}
+
+body.cinema-mode .featured-content {
+  max-width: 720px;
+}
+
+body.cinema-mode .featured-overlay {
+  min-height: calc(100vh - 8rem);
+}
+
+body.cinema-mode .carousel-section {
+  padding-top: 1rem;
+}
+
+body.cinema-mode .main-nav,
+body.cinema-mode .filters-bar,
+body.cinema-mode .genre-pill-row {
+  display: none;
+}
+
 .nav-pill {
   background: rgba(255, 255, 255, 0.06);
   color: var(--text);

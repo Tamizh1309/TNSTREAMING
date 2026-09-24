@@ -88,6 +88,7 @@ function getElements() {
     search: document.getElementById('search'),
     suggestions: document.getElementById('suggestions'),
     authBtn: document.getElementById('authBtn'),
+    cinemaToggle: document.getElementById('cinemaToggle'),
     authModal: document.getElementById('authModal'),
     closeAuthModal: document.getElementById('closeAuthModal'),
     loginForm: document.getElementById('loginForm'),
@@ -1147,6 +1148,14 @@ function toggleTheme() {
   elements.themeToggle.textContent = light ? '🌙' : '☀️';
 }
 
+function toggleCinemaMode() {
+  const active = document.body.classList.toggle('cinema-mode');
+  elements.cinemaToggle.textContent = active ? '×' : '◉';
+  elements.cinemaToggle.title = active ? 'Exit Cinema Mode' : 'Toggle Cinema Mode';
+  elements.cinemaToggle.setAttribute('aria-label', elements.cinemaToggle.title);
+  showNotification(active ? 'Cinema Mode' : 'Browse Mode', active ? 'Focused viewing layout enabled.' : 'Full catalog restored.');
+}
+
 function checkOfflineStatus() {
   elements.offlineNotice.style.display = navigator.onLine ? 'none' : 'block';
 }
@@ -1229,6 +1238,7 @@ function initialize() {
   elements.search.addEventListener('blur', () => setTimeout(() => { elements.suggestions.style.display = 'none'; }, 180));
 
   elements.themeToggle.addEventListener('click', toggleTheme);
+  elements.cinemaToggle.addEventListener('click', toggleCinemaMode);
   elements.watchlistBtn.addEventListener('click', () => {
     const visible = elements.watchlistSection.style.display !== 'none';
     elements.watchlistSection.style.display = visible ? 'none' : 'block';
@@ -1255,6 +1265,7 @@ function initialize() {
 
   document.addEventListener('keydown', event => {
     if (event.key === 'Escape') {
+      if (document.body.classList.contains('cinema-mode')) toggleCinemaMode();
       elements.modal.classList.remove('show');
       closeAuthModal();
       elements.profileModal.classList.remove('show');
@@ -1263,6 +1274,9 @@ function initialize() {
 
   // Global keyboard shortcuts for modal player
   document.addEventListener('keydown', event => {
+    if (event.key.toLowerCase() === 'c' && !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) {
+      toggleCinemaMode();
+    }
     const modalOpen = elements.modal.classList.contains('show');
     if (!modalOpen) return;
     const seasonSel = document.getElementById('seasonSelect');
