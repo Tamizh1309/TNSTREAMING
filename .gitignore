@@ -5,3 +5,8 @@ Thumbs.db
 
 # Local runtime artifacts
 *.log
+
+# Environment secrets
+.env
+.env.*
+!.env.example

@@ -14,6 +14,31 @@ A responsive, client-side streaming discovery dashboard inspired by modern OTT i
 
 ## Run locally
 
+Create a local `.env` from `.env.example` and add a restricted TMDB key before loading live catalog data.
+
+```powershell
+npm install
+npm run dev
+```
+
+Open <http://localhost:4173/>.
+
+For a frontend-only shell, the previous Python command still serves the files, but `/api/tmdb/*` requires the Node server.
+
+## Secure architecture
+
+The browser calls the same-origin `/api/tmdb/*` proxy. The backend adds `TMDB_API_KEY` from the environment, applies timeouts and rate limiting, and never sends the key to the client.
+
+Run the smoke tests with:
+
+```powershell
+npm test
+```
+
+The original prototype contained a client-side TMDB key in Git history. Rotate or revoke that key in TMDB before using this project publicly; removing it from the current source does not invalidate the old credential.
+
+## Run locally (static shell)
+
 ```powershell
 python -m http.server 4173
 ```

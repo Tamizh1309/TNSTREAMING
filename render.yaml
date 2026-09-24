@@ -1,8 +1,13 @@
 services:
   - type: web
     name: tn-streaming
-    runtime: static
-    buildCommand: echo "TNSTREAMING static site ready"
-    staticPublishPath: .
+    runtime: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: TMDB_API_KEY
+        sync: false
+      - key: CORS_ORIGIN
+        value: '*'
     pullRequestPreviewsEnabled: false
     autoDeploy: true

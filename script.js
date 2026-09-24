@@ -1,6 +1,5 @@
-﻿const API_KEY = "3fd2be6f0c70a2a598f084ddfb75487c";
-const IMG_PATH = "https://image.tmdb.org/t/p/w500";
-const API_BASE = "https://api.themoviedb.org/3";
+﻿const IMG_PATH = "https://image.tmdb.org/t/p/w500";
+const API_BASE = window.TNSTREAMING_API_BASE || "/api/tmdb";
 const STORAGE_KEYS = {
   watchlist: 'tn_watchlist',
   ratings: 'tn_ratings',
@@ -150,7 +149,6 @@ function getContentType(content) {
 
 function buildQueryParams({ page = 1, genre = '', sort = 'popularity.desc', language = '', rating = '' } = {}) {
   const params = new URLSearchParams({
-    api_key: API_KEY,
     page: page.toString(),
     sort_by: sort
   });
@@ -160,7 +158,6 @@ function buildQueryParams({ page = 1, genre = '', sort = 'popularity.desc', lang
   return params.toString();
 }
 
-const EMBED_BASE = 'https://vidsrc2.ru';
 const AUDIO_LANGUAGES = [
   { code: 'en', label: 'English' },
   { code: 'es', label: 'Spanish' },
@@ -201,56 +198,18 @@ const urls = {
   trending: params => `${API_BASE}/trending/movie/week?${params}`,
   popularTv: params => `${API_BASE}/discover/tv?${params}`,
   latestReleases: params => `${API_BASE}/discover/movie?${params}`,
-  search: query => `${API_BASE}/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(query)}`,
-  details: (id, type) => `${API_BASE}/${type}/${id}?api_key=${API_KEY}`,
-  providers: (id, type) => `${API_BASE}/${type}/${id}/watch/providers?api_key=${API_KEY}`,
-  recommendations: (id, type) => `${API_BASE}/${type}/${id}/recommendations?api_key=${API_KEY}`,
-  videos: (id, type) => `${API_BASE}/${type}/${id}/videos?api_key=${API_KEY}`,
-  credits: (id, type) => `${API_BASE}/${type}/${id}/credits?api_key=${API_KEY}`
+  search: query => `${API_BASE}/search/multi?query=${encodeURIComponent(query)}`,
+  details: (id, type) => `${API_BASE}/${type}/${id}`,
+  providers: (id, type) => `${API_BASE}/${type}/${id}/watch/providers`,
+  recommendations: (id, type) => `${API_BASE}/${type}/${id}/recommendations`,
+  videos: (id, type) => `${API_BASE}/${type}/${id}/videos`,
+  credits: (id, type) => `${API_BASE}/${type}/${id}/credits`
 };
 
-function getVidsrcEmbedUrl(type, tmdbId, season, episode, language = 'en', autoplay = 1, autonext = 0, subtitleUrl = '', audio = '') {
-  if (!tmdbId) return '';
-  const normalizedType = type === 'tv' ? 'tv' : 'movie';
-  const params = new URLSearchParams({
-    tmdb: tmdbId,
-    ds_lang: language,
-    autoplay: String(autoplay)
-  });
-  if (audio) params.append('ds_audio', audio);
-  if (subtitleUrl) params.append('sub_url', subtitleUrl);
-  if (normalizedType === 'tv') {
-    const selectedSeason = season || 1;
-    const selectedEpisode = episode || 1;
-    params.append('season', String(selectedSeason));
-    params.append('episode', String(selectedEpisode));
-    params.append('autonext', String(autonext));
-    return `${EMBED_BASE}/embed/tv?${params.toString()}`;
-  }
-  return `${EMBED_BASE}/embed/movie?${params.toString()}`;
-}
-
-function loadVidsrcPlayer(type, tmdbId, season, episode) {
+function loadAuthorizedPlayer(type, tmdbId, season, episode) {
   const playerBox = document.getElementById('playerBox');
   if (!playerBox) return;
-  const embedUrl = getVidsrcEmbedUrl(
-    type,
-    tmdbId,
-    season,
-    episode,
-    PLAYER_SETTINGS.language,
-    1,
-    PLAYER_SETTINGS.autonext,
-    PLAYER_SETTINGS.subtitleUrl,
-    PLAYER_SETTINGS.audio
-  );
-  if (!embedUrl) {
-    playerBox.innerHTML = '<div class="player-error">Unable to build streaming URL.</div>';
-    return;
-  }
-  playerBox.innerHTML = `
-    <iframe src="${embedUrl}" title="Video player" allowfullscreen allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
-  `;
+  playerBox.innerHTML = `<div class="player-error"><strong>Authorized playback is not configured.</strong><span>Use the official trailer button or connect a licensed provider in the backend.</span></div>`;
 }
 
 function renderPlayerSettings() {
@@ -304,7 +263,7 @@ async function populateEpisodeSelector(tvId, season) {
   if (!selector) return;
   selector.innerHTML = '<option>Loading episodes...</option>';
   try {
-    const data = await fetchJson(`${API_BASE}/tv/${tvId}/season/${season}?api_key=${API_KEY}`);
+    const data = await fetchJson(`${API_BASE}/tv/${tvId}/season/${season}`);
     const episodes = data.episodes || [];
     if (!episodes.length) {
       selector.innerHTML = '<option value="1">Episode 1</option>';
@@ -815,7 +774,7 @@ async function showMovieDetails(content, autoPlay = false) {
     const episodeValue = document.getElementById('episodeSelect');
     const season = seasonValue ? Number(seasonValue.value) : undefined;
     const episode = episodeValue ? Number(episodeValue.value) : undefined;
-    loadVidsrcPlayer(type, id, season, episode);
+    loadAuthorizedPlayer(type, id, season, episode);
   });
 
   document.getElementById('modalShareButton').addEventListener('click', () => shareContent(title, id, type));
@@ -830,7 +789,7 @@ async function showMovieDetails(content, autoPlay = false) {
     const episodeValue = document.getElementById('episodeSelect');
     const season = seasonValue ? Number(seasonValue.value) : undefined;
     const episode = episodeValue ? Number(episodeValue.value) : undefined;
-    loadVidsrcPlayer(type, id, season, episode);
+    loadAuthorizedPlayer(type, id, season, episode);
   };
   if (languageSelect) {
     languageSelect.addEventListener('change', () => {
@@ -878,7 +837,7 @@ async function showMovieDetails(content, autoPlay = false) {
   const initialSeason = initialSeasonValue ? Number(initialSeasonValue.value) : undefined;
   const initialEpisode = initialEpisodeValue ? Number(initialEpisodeValue.value) : undefined;
   if (autoPlay || progressData) {
-    loadVidsrcPlayer(type, id, initialSeason, initialEpisode);
+    loadAuthorizedPlayer(type, id, initialSeason, initialEpisode);
   }
 
   setupRatingStars(id);
@@ -1182,8 +1141,37 @@ async function openSharedTitle() {
 
 function registerServiceWorker() {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js?v=3').catch(error => console.warn('SW registration failed', error));
+    navigator.serviceWorker.register('sw.js?v=4').catch(error => console.warn('SW registration failed', error));
   }
+}
+
+const catalogCategories = ['popular', 'topRated', 'trending', 'popularTv', 'latestReleases'];
+
+function renderCatalogUnavailable(message) {
+  catalogCategories.forEach(category => {
+    if (elements[category]) elements[category].innerHTML = `<div class="section-note">${message}</div>`;
+  });
+}
+
+async function loadCatalog() {
+  if (!API_BASE.startsWith('/api/')) {
+    await Promise.all(catalogCategories.map(category => updateCategory(category)));
+    return;
+  }
+
+  try {
+    const response = await fetch('/api/health');
+    const health = await response.json();
+    if (!response.ok || !health.tmdbConfigured) {
+      renderCatalogUnavailable('Catalog setup is incomplete. Add TMDB_API_KEY to the server environment.');
+      return;
+    }
+  } catch {
+    renderCatalogUnavailable('The catalog service is unavailable. Start the backend and try again.');
+    return;
+  }
+
+  await Promise.all(catalogCategories.map(category => updateCategory(category)));
 }
 
 function hideModalOnClick(event) {
@@ -1212,7 +1200,7 @@ function initialize() {
   renderGenrePills();
   renderMoodPills();
   renderMoodGrid();
-  ['popular', 'topRated', 'trending', 'popularTv', 'latestReleases'].forEach(category => updateCategory(category));
+  loadCatalog();
 
   elements.featuredDetailsButton?.addEventListener('click', () => {
     if (featuredItem) showMovieDetails(featuredItem);
