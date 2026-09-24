@@ -368,8 +368,7 @@ body.cinema-mode .genre-pill-row {
 }
 
 .live-grid,
-.promo-grid,
-.plan-grid {
+.promo-grid {
   display: grid;
   gap: 1rem;
 }
