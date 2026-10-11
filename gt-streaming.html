@@ -418,6 +418,10 @@
             background: var(--teal);
         }
 
+        .sr-badge.person {
+            background: #e65100;
+        }
+
         .sr-imdb {
             display: flex;
             align-items: center;
@@ -3256,7 +3260,7 @@
                     <span class="ns-ico">⌕</span>
                     <input id="sinput" type="text" placeholder="Search movies, shows..." oninput="onSI(this.value)"
                         onfocus="onSF()"
-                        onkeydown="if(event.key==='Enter'){clearTimeout(searchTimer);doSearch(this.value.trim());}">
+                        onkeydown="if(event.key==='Enter'){event.preventDefault();clearTimeout(searchTimer);doSearch(this.value.trim());}">
                     <button class="ns-clr" id="sclr" onclick="clrSearch()">✕</button>
                 </div>
                 <div class="sdrop" id="sdrop"></div>
@@ -3628,11 +3632,20 @@
         /* ═══════════════════════════════════
            FETCH HELPERS
         ═══════════════════════════════════ */
+        async function fetchWithTimeout(url, opts = {}, ms = 3000) {
+            const controller = new AbortController();
+            const id = setTimeout(() => controller.abort(), ms);
+            try {
+                return await fetch(url, { ...opts, signal: controller.signal });
+            } finally {
+                clearTimeout(id);
+            }
+        }
         async function tmdb(path, p = {}) {
             const u = new URL(TMDB + path);
             u.searchParams.set('api_key', TMDB_KEY);
             Object.entries(p).forEach(([k, v]) => u.searchParams.set(k, v));
-            const r = await fetch(u); if (!r.ok) throw new Error(r.status);
+            const r = await fetchWithTimeout(u, {}, 5000); if (!r.ok) throw new Error(r.status);
             return r.json();
         }
         async function omdb(title, year = '') {
@@ -3641,29 +3654,29 @@
             u.searchParams.set('t', title);
             if (year) u.searchParams.set('y', year);
             u.searchParams.set('plot', 'short');
-            try { const r = await fetch(u); return r.json(); } catch { return null; }
+            try { const r = await fetchWithTimeout(u, {}, 4000); return r.json(); } catch { return null; }
         }
-        async function jikan(path, p = {}, retries = 3) {
+        async function jikan(path, p = {}, retries = 1, timeoutMs = 2500) {
             const cacheKey = path + '?' + new URLSearchParams(p).toString();
             if (jikanCache.has(cacheKey)) return jikanCache.get(cacheKey);
             const u = new URL(JIKAN + path);
             Object.entries(p).forEach(([k, v]) => u.searchParams.set(k, v));
             for (let attempt = 0; attempt < retries; attempt++) {
                 try {
-                    const r = await fetch(u);
+                    const r = await fetchWithTimeout(u, {}, timeoutMs);
                     if (r.ok) {
                         const data = await r.json();
                         jikanCache.set(cacheKey, data);
                         return data;
                     }
                     if (r.status === 429) {
-                        await new Promise(res => setTimeout(res, 1000 * (attempt + 1)));
+                        await new Promise(res => setTimeout(res, 800 * (attempt + 1)));
                         continue;
                     }
                     throw new Error(`HTTP ${r.status}`);
                 } catch (e) {
                     if (attempt === retries - 1) throw e;
-                    await new Promise(res => setTimeout(res, 800));
+                    await new Promise(res => setTimeout(res, 400));
                 }
             }
         }
@@ -4028,52 +4041,108 @@
         }
 
         /* ═══════════════════════════════════
-           SEARCH (TMDB + OMDb enrichment)
+           SEARCH (TMDB + OMDb + Anime/Manga)
         ═══════════════════════════════════ */
+        let latestSearchId = 0;
+
         function onSI(q) {
             document.getElementById('sclr').style.display = q ? 'block' : 'none';
             document.getElementById('nsr').classList.toggle('exp', !!q);
             clearTimeout(searchTimer);
-            if (!q.trim()) { document.getElementById('sdrop').classList.remove('show'); return; }
-            searchTimer = setTimeout(() => doSearch(q.trim()), 300);
+            if (!q.trim()) {
+                document.getElementById('sdrop').classList.remove('show');
+                document.getElementById('sdrop').innerHTML = '';
+                return;
+            }
+            searchTimer = setTimeout(() => doSearch(q.trim()), 250);
         }
-        function onSF() { if (document.getElementById('sinput').value.trim()) document.getElementById('sdrop').classList.add('show'); }
+        function onSF() {
+            const v = document.getElementById('sinput').value.trim();
+            if (v && document.getElementById('sdrop').innerHTML.trim()) {
+                document.getElementById('sdrop').classList.add('show');
+            }
+        }
         function clrSearch() {
             document.getElementById('sinput').value = '';
             document.getElementById('sclr').style.display = 'none';
             document.getElementById('nsr').classList.remove('exp');
             document.getElementById('sdrop').classList.remove('show');
+            document.getElementById('sdrop').innerHTML = '';
+            clearTimeout(searchTimer);
         }
         async function doSearch(q) {
             const el = document.getElementById('sdrop');
-            if (!q) { el.classList.remove('show'); return; }
-            el.innerHTML = '<div class="sr-loading"><div class="spinner"></div>Searching Movies, TV, Anime &amp; Manga...</div>';
+            if (!q || !q.trim()) { el.classList.remove('show'); return; }
+            const query = q.trim();
+            const searchId = ++latestSearchId;
+            el.innerHTML = '<div class="sr-loading"><div class="spinner"></div>Searching Movies, TV &amp; Anime...</div>';
             el.classList.add('show');
+
             try {
-                const [tmdbR, jikanAnime, jikanManga] = await Promise.allSettled([
-                    tmdb('/search/multi', { query: q, include_adult: false }),
-                    jikan('/anime', { q, sfw: true, limit: 4 }),
-                    jikan('/manga', { q, sfw: true, limit: 4 })
+                const lowerQ = query.toLowerCase();
+
+                // Instant fallback matches for Anime and Manga
+                const localAnime = FALLBACK_ANIME.filter(a =>
+                    (a.title && a.title.toLowerCase().includes(lowerQ)) ||
+                    (a.title_english && a.title_english.toLowerCase().includes(lowerQ)) ||
+                    (a.title_japanese && a.title_japanese.toLowerCase().includes(lowerQ))
+                );
+                const localManga = FALLBACK_MANGA.filter(m =>
+                    (m.title && m.title.toLowerCase().includes(lowerQ)) ||
+                    (m.title_english && m.title_english.toLowerCase().includes(lowerQ))
+                );
+
+                // Fetch TMDB immediately
+                const tmdbPromise = tmdb('/search/multi', { query, include_adult: false })
+                    .catch(e => { console.warn('TMDB search error:', e); return { results: [] }; });
+
+                // Fetch Jikan with strict 1500ms timeout
+                const jikanAnimePromise = jikan('/anime', { q: query, sfw: true, limit: 4 }, 1, 1500)
+                    .catch(() => null);
+                const jikanMangaPromise = jikan('/manga', { q: query, sfw: true, limit: 4 }, 1, 1500)
+                    .catch(() => null);
+
+                const [tmdbData, jikanAnime, jikanManga] = await Promise.all([
+                    tmdbPromise,
+                    jikanAnimePromise,
+                    jikanMangaPromise
                 ]);
 
-                let tmdbItems = (tmdbR.status === 'fulfilled' && tmdbR.value?.results) ? tmdbR.value.results.filter(m => m.media_type === 'movie' || m.media_type === 'tv') : [];
-                let animeItems = (jikanAnime.status === 'fulfilled' && jikanAnime.value?.data) ? jikanAnime.value.data : [];
-                let mangaItems = (jikanManga.status === 'fulfilled' && jikanManga.value?.data) ? jikanManga.value.data : [];
+                // Ignore stale results if user typed more
+                if (searchId !== latestSearchId) return;
 
-                if (!tmdbItems.length && !animeItems.length && !mangaItems.length) {
-                    el.innerHTML = '<div class="sr-empty">No results found for "' + escQ(q) + '"</div>';
+                let tmdbItems = (tmdbData?.results || []).filter(m => m.media_type === 'movie' || m.media_type === 'tv');
+                const personItems = (tmdbData?.results || []).filter(m => m.media_type === 'person');
+
+                // If person results found, include their notable films/shows
+                if (personItems.length) {
+                    personItems.forEach(p => {
+                        (p.known_for || []).forEach(kf => {
+                            if ((kf.media_type === 'movie' || kf.media_type === 'tv') && !tmdbItems.some(x => x.id === kf.id)) {
+                                tmdbItems.push(kf);
+                            }
+                        });
+                    });
+                }
+
+                let animeItems = jikanAnime?.data?.length ? jikanAnime.data : localAnime;
+                let mangaItems = jikanManga?.data?.length ? jikanManga.data : localManga;
+
+                if (!tmdbItems.length && !personItems.length && !animeItems.length && !mangaItems.length) {
+                    el.innerHTML = '<div class="sr-empty">No results found for "' + escQ(query) + '"</div>';
                     return;
                 }
 
                 let html = '';
 
-                tmdbItems.slice(0, 4).forEach(m => {
+                // TMDB Movies & TV Shows
+                tmdbItems.slice(0, 6).forEach(m => {
                     const t = m.title || m.name || '';
                     const yr = (m.release_date || m.first_air_date || '').slice(0, 4);
                     const isTV = m.media_type === 'tv';
                     const imgPath = m.poster_path || m.backdrop_path;
                     const vote = m.vote_average ? m.vote_average.toFixed(1) : 'N/A';
-                    html += `<div class="sr-item" onclick="openDetail(${m.id},'${m.media_type}');clrSearch();">
+                    html += `<div class="sr-item" onclick="openDetail(${m.id},'${m.media_type || 'movie'}');clrSearch();">
         <img class="sr-thumb${isTV ? ' wide' : ''}" src="${imgU(imgPath, isTV ? 'w300' : 'w185')}" alt="${escQ(t)}" loading="lazy">
         <div class="sr-info">
           <h4>${t}</h4>
@@ -4083,7 +4152,21 @@
       </div>`;
                 });
 
-                animeItems.slice(0, 4).forEach(a => {
+                // Persons / Actors
+                personItems.slice(0, 2).forEach(p => {
+                    const knownList = (p.known_for || []).map(k => k.title || k.name).filter(Boolean).slice(0, 2).join(', ');
+                    html += `<div class="sr-item" onclick="searchActor('${escQ(p.name)}');">
+        <img class="sr-thumb" src="${imgU(p.profile_path, 'w185')}" alt="${escQ(p.name)}" loading="lazy">
+        <div class="sr-info">
+          <h4>${p.name}</h4>
+          <div class="sm">Person · ${knownList || p.known_for_department || 'Cast'}</div>
+        </div>
+        <span class="sr-badge person">Person</span>
+      </div>`;
+                });
+
+                // Anime
+                animeItems.slice(0, 3).forEach(a => {
                     const t = a.title_english || a.title || '';
                     const yr = a.year || (a.aired?.prop?.from?.year) || '';
                     const imgPath = a.images?.jpg?.small_image_url || a.images?.jpg?.image_url;
@@ -4098,7 +4181,8 @@
       </div>`;
                 });
 
-                mangaItems.slice(0, 4).forEach(m => {
+                // Manga
+                mangaItems.slice(0, 2).forEach(m => {
                     const t = m.title_english || m.title || '';
                     const yr = (m.published?.string || '').slice(0, 4);
                     const imgPath = m.images?.jpg?.small_image_url || m.images?.jpg?.image_url;
@@ -4122,6 +4206,7 @@
         async function searchActor(name) {
             document.getElementById('sinput').value = name;
             onSI(name);
+            doSearch(name);
         }
 
         /* ═══════════════════════════════════
@@ -5146,8 +5231,9 @@
             if (e.target === document.getElementById('trailerModal')) closeTrailer();
             if (e.target === document.getElementById('authModal')) closeAuth();
             if (!e.target.closest('#listPanel') && !e.target.closest('#listIcon') && !e.target.closest('[onclick="toggleList()"]')) document.getElementById('listPanel').classList.remove('open');
+            if (!e.target.closest('.sw')) document.getElementById('sdrop')?.classList.remove('show');
         });
-        document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeDownload(); closePlayer(); closeDetail(); closeTrailer(); closeAuth(); } });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeDownload(); closePlayer(); closeDetail(); closeTrailer(); closeAuth(); clrSearch(); } });
 
         /* init list dot */
         document.addEventListener('DOMContentLoaded', () => {
